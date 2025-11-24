@@ -450,57 +450,67 @@
         grid-template-columns: 1fr;
       }
 
-            /* Thêm vào phần <style> */
-        .menu-item, .order-card, .category-items {
-            will-change: transform;
-            contain: layout style paint;
-        }
-
-        .category-items {
-            transition: none; /* Bỏ transition nếu có */
-        }
-
-        .report-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  margin-bottom: 15px;
-  overflow: hidden;
+     .modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
 }
 
-.report-header {
+.modal-content {
+  background-color: white;
+  margin: 5% auto;
+  padding: 0;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.modal-header {
   background: #e74c3c;
   color: white;
-  padding: 15px 20px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 16px;
+  padding: 20px;
+  border-radius: 12px 12px 0 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background 0.3s;
 }
 
-.report-header:hover {
-  background: #c0392b;
+.modal-body {
+  padding: 30px;
 }
 
-.report-content {
-  display: none;
-  padding: 20px;
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  width: auto;
+  padding: 0;
 }
 
-.report-content.show {
-  display: block;
+.bill-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
 }
 
-.report-icon {
+.bill-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 0 10px 0;
+  border-top: 2px solid #e74c3c;
   font-size: 20px;
-  transition: transform 0.3s;
-}
-
-.report-icon.rotate {
-  transform: rotate(180deg);
+  font-weight: 700;
+  color: #e74c3c;
+  margin-top: 15px;
 }
     }
   </style>
@@ -601,54 +611,57 @@
       <div class="orders-grid" id="ordersGrid"></div>
     </div>
 
-    <!-- Tab 3: Reports -->
+
+
+ <!-- Tab 3: Reports -->
 <div class="tab-content" id="tab3">
-  <!-- Card 1: Doanh Thu -->
-  <div class="report-card">
-    <div class="report-header" onclick="toggleReport('revenue')">
-      <span>💰 Doanh Thu Hôm Nay</span>
-      <span class="report-icon" id="icon-revenue">▼</span>
+  <div class="report-section">
+    <div class="category-header" onclick="toggleReportSection('revenue')">
+      <span>📊 Doanh Thu </span>
+      <span class="category-icon" id="icon-revenue">▼</span>
     </div>
-    <div class="report-content" id="content-revenue">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-value" id="totalRevenue">0đ</div>
-          <div class="stat-label">Tổng doanh thu</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="dineRevenue">0đ</div>
-          <div class="stat-label">Tiền mặt</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="takeoutRevenue">0đ</div>
-          <div class="stat-label">Chuyển khoản</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="appRevenue">0đ</div>
-          <div class="stat-label">Grab + Shopee</div>
-        </div>
-      </div>
+   <div class="category-items" id="items-revenue">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value" id="totalRevenue">0đ</div>
+      <div class="stat-label">Tổng doanh thu</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="cashRevenue">0đ</div>
+      <div class="stat-label">Tiền mặt</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="transferRevenue">0đ</div>
+      <div class="stat-label">Chuyển khoản</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="grabRevenue">0đ</div>
+      <div class="stat-label">Grab</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="shopeeRevenue">0đ</div>
+      <div class="stat-label">Shopee</div>
     </div>
   </div>
+</div>
+  </div>
 
-  <!-- Card 2: Món Đã Bán -->
-  <div class="report-card">
-    <div class="report-header" onclick="toggleReport('items')">
+  <div class="report-section">
+    <div class="category-header" onclick="toggleReportSection('items')">
       <span>🍕 Món Đã Bán</span>
-      <span class="report-icon" id="icon-items">▼</span>
+      <span class="category-icon" id="icon-items">▼</span>
     </div>
-    <div class="report-content" id="content-items">
+    <div class="category-items" id="items-items">
       <div id="soldItems"></div>
     </div>
   </div>
 
-  <!-- Card 3: Quản Lý Két Tiền -->
-  <div class="report-card">
-    <div class="report-header" onclick="toggleReport('cash')">
-      <span>💵 Quản Lý Két Tiền</span>
-      <span class="report-icon" id="icon-cash">▼</span>
+  <div class="report-section">
+    <div class="category-header" onclick="toggleReportSection('cash')">
+      <span>💰 Quản Lý Két Tiền</span>
+      <span class="category-icon" id="icon-cash">▼</span>
     </div>
-    <div class="report-content" id="content-cash">
+    <div class="category-items" id="items-cash">
       <div class="cash-register">
         <div class="cash-input-group">
           <input type="number" id="startCash" placeholder="Nhập tiền đầu ngày">
@@ -659,8 +672,8 @@
           <strong id="displayStartCash">0đ</strong>
         </div>
         <div class="cash-info">
-          <span>Doanh thu trong ngày:</span>
-          <strong id="displayRevenue">0đ</strong>
+          <span>Tiền mặt thu được:</span>
+          <strong id="displayCashRevenue">0đ</strong>
         </div>
         <div class="cash-info">
           <span>Tổng két tiền:</span>
@@ -760,48 +773,39 @@
     let orders = [];
     let cart = {};
     let dailyReport = {
-      revenue: { total: 0, dine: 0, takeout: 0, app: 0 },
-      items: {},
-      cash: { start: 0, current: 0 }
-    };
+  revenue: { 
+    total: 0, 
+    cash: 0,
+    transfer: 0,
+    grab: 0,
+    shopee: 0
+  },
+  items: {},
+  cash: { start: 0, current: 0 }
+};
 
-    const itemCache = {};
 
-    function initItemCache() {
-        Object.keys(menuData).forEach(category => {
-            menuData[category].forEach(item => {
-                itemCache[item.id] = item;
-            });
-        });
-    }
+    async function login() {
+  const userId = document.getElementById('userId').value.trim();
+  const store = document.getElementById('storeSelect').value;
 
-    function findItemById(itemId) {
-        return itemCache[itemId] || null;
-    }
+  if (!userId || !store) {
+    alert('Vui lòng nhập đầy đủ thông tin!');
+    return;
+  }
 
-    // Gọi trong hàm login
-async function login() {
-    const userId = document.getElementById('userId').value.trim();
-    const store = document.getElementById('storeSelect').value;
+  currentUser = userId;
+  currentStore = store;
 
-    if (!userId || !store) {
-        alert('Vui lòng nhập đầy đủ thông tin!');
-        return;
-    }
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+  document.getElementById('storeBadge').textContent = store;
+  document.getElementById('userDisplay').textContent = `User: ${userId}`;
 
-    currentUser = userId;
-    currentStore = store;
-
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    document.getElementById('storeBadge').textContent = store;
-    document.getElementById('userDisplay').textContent = `User: ${userId}`;
-
-    initItemCache(); // Khởi tạo cache
-    await loadData();
-    renderMenu();
-    toggleTableSelect();
-    updateReports();
+  await loadData(); // Đợi load data xong
+  renderMenu();
+  toggleTableSelect();
+  updateReports();
 }
 
     function toggleTableSelect() {
@@ -833,93 +837,92 @@ async function login() {
     }
 
     function toggleCategory(category) {
-    const items = document.getElementById(`items-${category}`);
-    const icon = document.getElementById(`icon-${category}`);
-    const header = document.getElementById(`header-${category}`);
-    
-    const isShowing = items.classList.contains('show');
-    
-    if (!isShowing && items.innerHTML.trim() === '') {
-        // Chỉ render items lần đầu tiên khi mở
-        renderCategoryItems(category);
+      const items = document.getElementById(`items-${category}`);
+      const icon = document.getElementById(`icon-${category}`);
+      const header = document.getElementById(`header-${category}`);
+      
+      items.classList.toggle('show');
+      icon.classList.toggle('rotate');
+      header.classList.toggle('active');
     }
-    
-    items.classList.toggle('show');
-    icon.classList.toggle('rotate');
-    header.classList.toggle('active');
-}
 
     function renderMenu() {
-    const container = document.getElementById('menuCategories');
-    
-    container.innerHTML = Object.keys(menuData).map(category => {
+      const container = document.getElementById('menuCategories');
+      
+      container.innerHTML = Object.keys(menuData).map(category => {
+        const items = menuData[category].map(item => `
+          <div class="menu-item">
+            <div>
+              <strong>${item.name}</strong>
+              <div style="color: #e74c3c; font-weight: 600;">${formatMoney(item.price)}</div>
+            </div>
+            <div class="quantity-control">
+              <button class="qty-btn" onclick="updateCart('${item.id}', -1)">-</button>
+              <span style="min-width: 30px; text-align: center; font-weight: 600;">${cart[item.id] || 0}</span>
+              <button class="qty-btn" onclick="updateCart('${item.id}', 1)">+</button>
+            </div>
+          </div>
+        `).join('');
+
         return `
-        <div class="category-section">
+          <div class="category-section">
             <div class="category-header" id="header-${category}" onclick="toggleCategory('${category}')">
-                <span>📁 ${category}</span>
-                <span class="category-icon" id="icon-${category}">▼</span>
+              <span>📁 ${category}</span>
+              <span class="category-icon" id="icon-${category}">▼</span>
             </div>
             <div class="category-items" id="items-${category}">
-                <!-- Sẽ render khi click vào category -->
+              ${items}
             </div>
-        </div>
+          </div>
         `;
-    }).join('');
-}
+      }).join('');
+    }
 
-    let cartUpdateTimeout;
-
-function updateCart(itemId, change) {
-    if (!cart[itemId]) cart[itemId] = 0;
-    cart[itemId] += change;
-    if (cart[itemId] <= 0) delete cart[itemId];
-    
-    // Cập nhật số lượng ngay lập tức (không re-render)
-    updateQuantityDisplay(itemId);
-    
-    // Debounce việc cập nhật summary
-    clearTimeout(cartUpdateTimeout);
-    cartUpdateTimeout = setTimeout(() => {
-        updateOrderSummary();
-    }, 150);
-}
-
-function updateQuantityDisplay(itemId) {
-    // Tìm và cập nhật chỉ phần số lượng
-    const quantitySpans = document.querySelectorAll(`[data-item-id="${itemId}"]`);
-    quantitySpans.forEach(span => {
-        span.textContent = cart[itemId] || 0;
-    });
-}
+    function updateCart(itemId, change) {
+      if (!cart[itemId]) cart[itemId] = 0;
+      cart[itemId] += change;
+      if (cart[itemId] <= 0) delete cart[itemId];
+      
+      // Chỉ cập nhật số lượng trong category đang mở, không đóng category
+      const item = findItemById(itemId);
+      if (item) {
+        // Tìm category chứa item này
+        for (const category in menuData) {
+          const foundItem = menuData[category].find(i => i.id === itemId);
+          if (foundItem) {
+            // Chỉ render lại items trong category này
+            const categoryItems = document.getElementById(`items-${category}`);
+            if (categoryItems && categoryItems.classList.contains('show')) {
+              renderCategoryItems(category);
+            }
+            break;
+          }
+        }
+      }
       
       updateOrderSummary();
-    
+    }
 
     function renderCategoryItems(category) {
-    const container = document.getElementById(`items-${category}`);
-    if (!container) return;
+      const container = document.getElementById(`items-${category}`);
+      if (!container) return;
 
-    const items = menuData[category].map(item => {
-        const displayName = item.size ? `${item.name} (${item.size})` : item.name;
-        
-        return `
-            <div class="menu-item">
-                <div>
-                    <strong>${displayName}</strong>
-                    <div style="color: #e74c3c; font-weight: 600;">${formatMoney(item.price)}</div>
-                </div>
-                <div class="quantity-control">
-                    <button class="qty-btn" onclick="updateCart('${item.id}', -1)">-</button>
-                    <span data-item-id="${item.id}" style="min-width: 30px; text-align: center; font-weight: 600;">${cart[item.id] || 0}</span>
-                    <button class="qty-btn" onclick="updateCart('${item.id}', 1)">+</button>
-                </div>
-            </div>
-        `;
-    }).join('');
+      const items = menuData[category].map(item => `
+        <div class="menu-item">
+          <div>
+            <strong>${item.name}</strong>
+            <div style="color: #e74c3c; font-weight: 600;">${formatMoney(item.price)}</div>
+          </div>
+          <div class="quantity-control">
+            <button class="qty-btn" onclick="updateCart('${item.id}', -1)">-</button>
+            <span style="min-width: 30px; text-align: center; font-weight: 600;">${cart[item.id] || 0}</span>
+            <button class="qty-btn" onclick="updateCart('${item.id}', 1)">+</button>
+          </div>
+        </div>
+      `).join('');
 
-    container.innerHTML = items;
-}
-
+      container.innerHTML = items;
+    }
 
     function findItemById(itemId) {
       for (const category in menuData) {
@@ -930,223 +933,237 @@ function updateQuantityDisplay(itemId) {
     }
 
     function updateOrderSummary() {
-    const summaryItems = document.getElementById('orderSummaryItems');
-    const totalAmount = document.getElementById('totalAmount');
+      const summaryItems = document.getElementById('orderSummaryItems');
+      const totalAmount = document.getElementById('totalAmount');
 
-    let total = 0;
-    const htmlParts = [];
+      let total = 0;
+      let html = '';
 
-    for (const itemId in cart) {
+      Object.keys(cart).forEach(itemId => {
         const item = findItemById(itemId);
-        if (!item) continue;
+        if (!item) return;
         
         const qty = cart[itemId];
         const subtotal = item.price * qty;
         total += subtotal;
 
-        htmlParts.push(`
-            <div class="summary-row">
-                <span>${item.name} x ${qty}</span>
-                <span>${formatMoney(subtotal)}</span>
-            </div>
-        `);
-    }
+        html += `
+          <div class="summary-row">
+            <span>${item.name} x ${qty}</span>
+            <span>${formatMoney(subtotal)}</span>
+          </div>
+        `;
+      });
 
-    summaryItems.innerHTML = htmlParts.join('');
-    totalAmount.textContent = formatMoney(total);
-}
+      summaryItems.innerHTML = html;
+      totalAmount.textContent = formatMoney(total);
+    }
 
     async function createOrder() {
-        if (Object.keys(cart).length === 0) {
-            alert('Vui lòng chọn món!');
-            return;
-        }
+  if (Object.keys(cart).length === 0) {
+    alert('Vui lòng chọn món!');
+    return;
+  }
 
-        const orderType = document.getElementById('orderType').value;
-        const tableNumber = document.getElementById('tableNumber').value;
+  const orderType = document.getElementById('orderType').value;
+  const tableNumber = document.getElementById('tableNumber').value;
 
-        const order = {
-            id: Date.now(),
-            store_code: currentStore,
-            user_id: currentUser,
-            order_type: orderType,
-            table_number: orderType === 'dine' ? tableNumber : null,
-            note: document.getElementById('orderNote').value,
-            items: {...cart},
-            total: Object.keys(cart).reduce((sum, id) => {
-            const item = findItemById(id);
-            return sum + (item.price * cart[id]);
-            }, 0),
-            status: 'pending',
-            created_at: new Date().toISOString()
-        };
+  const order = {
+    id: Date.now(),
+    store_code: currentStore,
+    user_id: currentUser,
+    order_type: orderType,
+    table_number: orderType === 'dine' ? tableNumber : null,
+    note: document.getElementById('orderNote').value,
+    items: {...cart},
+    total: Object.keys(cart).reduce((sum, id) => {
+      const item = findItemById(id);
+      return sum + (item.price * cart[id]);
+    }, 0),
+    status: 'pending',
+    created_at: new Date().toISOString()
+  };
 
-        try {
-            // Lưu vào Supabase
-            const { error } = await supabase
-            .from('orders')
-            .insert([order]);
+  try {
+    // Lưu vào Supabase
+    const { error } = await supabase
+      .from('orders')
+      .insert([order]);
 
-            if (error) throw error;
+    if (error) throw error;
 
-            orders.push(order);
-            cart = {};
-            document.getElementById('orderNote').value = '';
-            renderMenu();
-            updateOrderSummary();
-            await saveData();
-            alert('Đơn hàng đã được tạo!');
-            switchTab(1);
+    orders.push(order);
+    cart = {};
+    document.getElementById('orderNote').value = '';
+    renderMenu();
+    updateOrderSummary();
+    await saveData();
+    alert('Đơn hàng đã được tạo!');
+    switchTab(1);
 
-        } catch (error) {
-            console.error('Lỗi tạo đơn hàng:', error);
-            alert('Có lỗi khi tạo đơn hàng. Vui lòng thử lại!');
-        }
-        }
-
-    function renderOrders() {
-    const grid = document.getElementById('ordersGrid');
-    
-    if (orders.length === 0) {
-        grid.innerHTML = '<p style="text-align: center; color: #999;">Không có đơn hàng nào</p>';
-        return;
-    }
-
-    // Sử dụng DocumentFragment để tối ưu DOM manipulation
-    const fragment = document.createDocumentFragment();
-    const tempDiv = document.createElement('div');
-    
-    tempDiv.innerHTML = orders.map(order => {
-        let typeClass, typeLabel;
-        
-        switch(order.type || order.order_type) {
-            case 'dine':
-                typeClass = 'type-dine';
-                typeLabel = 'Ăn tại quán - Bàn ' + (order.table || order.table_number);
-                break;
-            case 'takeout':
-                typeClass = 'type-takeout';
-                typeLabel = 'Mang về';
-                break;
-            case 'grab':
-                typeClass = 'type-grab';
-                typeLabel = 'Grab';
-                break;
-            default:
-                typeClass = 'type-shopee';
-                typeLabel = 'Shopee';
-        }
-
-        const itemsHtml = Object.keys(order.items).map(itemId => {
-            const item = findItemById(itemId);
-            if (!item) return '';
-            return `
-                <div class="order-item">
-                    <span>${item.name} x ${order.items[itemId]}</span>
-                    <span>${formatMoney(item.price * order.items[itemId])}</span>
-                </div>
-            `;
-        }).join('');
-
-        return `
-            <div class="order-card">
-                <div class="order-header">
-                    <div>
-                        <span class="order-type ${typeClass}">${typeLabel}</span>
-                        <div style="margin-top: 8px; font-size: 12px; color: #999;">${order.timestamp || new Date(order.created_at).toLocaleString('vi-VN')}</div>
-                    </div>
-                    <div style="font-size: 20px; font-weight: 700; color: #e74c3c;">
-                        ${formatMoney(order.total)}
-                    </div>
-                </div>
-                ${order.note ? `<div style="margin-bottom: 10px; font-style: italic; color: #777;">Ghi chú: ${order.note}</div>` : ''}
-                <div class="order-items">${itemsHtml}</div>
-                <div class="payment-buttons">
-                    <button class="payment-btn pay-cash" onclick="payOrder(${order.id}, 'cash')">Tiền mặt</button>
-                    <button class="payment-btn pay-transfer" onclick="payOrder(${order.id}, 'transfer')">Chuyển khoản</button>
-                    <button class="payment-btn pay-app" onclick="payOrder(${order.id}, 'grab')" style="background: #00b14f;">Grab</button>
-                    <button class="payment-btn pay-app" onclick="payOrder(${order.id}, 'shopee')" style="background: #ee4d2d;">Shopee</button>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    grid.innerHTML = tempDiv.innerHTML;
+  } catch (error) {
+    console.error('Lỗi tạo đơn hàng:', error);
+    alert('Có lỗi khi tạo đơn hàng. Vui lòng thử lại!');
+  }
 }
 
-    async function payOrder(orderId, method) {
-        const order = orders.find(o => o.id === orderId);
-        if (!order) return;
+    function renderOrders() {
+  const grid = document.getElementById('ordersGrid');
+  
+  if (orders.length === 0) {
+    grid.innerHTML = '<p style="text-align: center; color: #999;">Không có đơn hàng nào</p>';
+    return;
+  }
 
-        const methodLabel = method === 'cash' ? 'Tiền mặt' : 
-                            method === 'transfer' ? 'Chuyển khoản' : 
-                            method === 'grab' ? 'Grab' :
-                            'Shopee';
-        
-        if (!confirm(`Xác nhận thanh toán ${formatMoney(order.total)} bằng ${methodLabel}?`)) {
-            return;
-        }
-
-        try {
-            // Cập nhật trạng thái order trong Supabase
-            const { error } = await supabase
-            .from('orders')
-            .update({ 
-                status: 'paid',
-                payment_method: method 
-            })
-            .eq('id', orderId);
-
-            if (error) throw error;
-
-            // Cập nhật báo cáo theo phương thức thanh toán
-            dailyReport.revenue.total += order.total;
-            dailyReport.revenue[method] += order.total;
-            
-            // Chỉ cộng vào két khi thanh toán tiền mặt
-            if (method === 'cash') {
-                dailyReport.cash.current += order.total;
-            }
-
-            Object.keys(order.items).forEach(itemId => {
-                const item = findItemById(itemId);
-                if (!item) return;
-                
-                if (!dailyReport.items[item.name]) {
-                    dailyReport.items[item.name] = 0;
-                }
-                dailyReport.items[item.name] += order.items[itemId];
-            });
-
-            orders = orders.filter(o => o.id !== orderId);
-            await saveData();
-            renderOrders();
-            updateReports();
-            alert('Đã thanh toán thành công!');
-
-        } catch (error) {
-            console.error('Lỗi thanh toán:', error);
-            alert('Có lỗi khi thanh toán. Vui lòng thử lại!');
-        }
+  grid.innerHTML = orders.map(order => {
+    let typeClass, typeLabel, orderInfo = '';
+    
+    if (order.order_type === 'dine' || order.type === 'dine') {
+      typeClass = 'type-dine';
+      typeLabel = '🍽️ Ăn tại quán';
+      orderInfo = `<div style="margin-top: 5px; font-size: 14px;"><strong>Bàn ${order.table_number || order.table}</strong></div>`;
+    } else if (order.order_type === 'takeout' || order.type === 'takeout') {
+      typeClass = 'type-takeout';
+      typeLabel = '📦 Mang về';
+    } else if (order.order_type === 'grab' || order.type === 'grab') {
+      typeClass = 'type-grab';
+      typeLabel = '🛵 Grab';
+    } else {
+      typeClass = 'type-shopee';
+      typeLabel = '🛒 Shopee';
     }
-    function updateReports() {
-      document.getElementById('totalRevenue').textContent = formatMoney(dailyReport.revenue.total);
-    document.getElementById('dineRevenue').textContent = formatMoney(dailyReport.revenue.cash || 0);
-    document.getElementById('takeoutRevenue').textContent = formatMoney(dailyReport.revenue.transfer || 0);
-    document.getElementById('appRevenue').textContent = formatMoney((dailyReport.revenue.grab || 0) + (dailyReport.revenue.shopee || 0));
-      const soldItems = document.getElementById('soldItems');
-      const itemsHtml = Object.keys(dailyReport.items).map(name => `
+
+    const itemsHtml = Object.keys(order.items).map(itemId => {
+      const item = findItemById(itemId);
+      if (!item) return '';
+      return `
         <div class="order-item">
-          <span>${name}</span>
-          <strong>${dailyReport.items[name]} món</strong>
+          <span>${item.name} x ${order.items[itemId]}</span>
+          <span>${formatMoney(item.price * order.items[itemId])}</span>
         </div>
-      `).join('');
-      soldItems.innerHTML = itemsHtml || '<p style="color: #999;">Chưa có món nào được bán</p>';
+      `;
+    }).join('');
 
-      document.getElementById('displayStartCash').textContent = formatMoney(dailyReport.cash.start);
-      document.getElementById('displayRevenue').textContent = formatMoney(dailyReport.revenue.total);
-      document.getElementById('displayTotalCash').textContent = formatMoney(dailyReport.cash.start + dailyReport.cash.current);
+    const timestamp = order.created_at ? new Date(order.created_at).toLocaleString('vi-VN') : order.timestamp;
+
+    return `
+      <div class="order-card">
+        <div class="order-header">
+          <div>
+            <span class="order-type ${typeClass}">${typeLabel}</span>
+            ${orderInfo}
+            <div style="margin-top: 8px; font-size: 12px; color: #999;">${timestamp}</div>
+          </div>
+          <div style="font-size: 20px; font-weight: 700; color: #e74c3c;">
+            ${formatMoney(order.total)}
+          </div>
+        </div>
+        ${order.note ? `<div style="margin-bottom: 10px; padding: 10px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;"><strong>📝 Ghi chú:</strong> ${order.note}</div>` : ''}
+        <div class="order-items">
+          ${itemsHtml}
+        </div>
+        <div class="payment-buttons">
+          <button class="payment-btn" style="background: #9b59b6; color: white; margin-bottom: 10px;" onclick="showBillPreview(${order.id})">👁️ Xem hóa đơn</button>
+        </div>
+        <div class="payment-buttons">
+          <button class="payment-btn pay-cash" onclick="payOrder(${order.id}, 'cash')">💵 Tiền mặt</button>
+          <button class="payment-btn pay-transfer" onclick="payOrder(${order.id}, 'transfer')">🏦 Chuyển khoản</button>
+          <button class="payment-btn" style="background: #00b14f; color: white;" onclick="payOrder(${order.id}, 'grab')">🛵 Grab</button>
+          <button class="payment-btn" style="background: #ee4d2d; color: white;" onclick="payOrder(${order.id}, 'shopee')">🛒 Shopee</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+
+ async function payOrder(orderId, method) {
+  const order = orders.find(o => o.id === orderId);
+  if (!order) return;
+
+  const methodLabels = {
+    'cash': '💵 Tiền mặt',
+    'transfer': '🏦 Chuyển khoản',
+    'grab': '🛵 Grab',
+    'shopee': '🛒 Shopee'
+  };
+  
+  if (!confirm(`Xác nhận thanh toán ${formatMoney(order.total)} bằng ${methodLabels[method]}?`)) {
+    return;
+  }
+
+  try {
+    const { error } = await supabase
+      .from('orders')
+      .update({ 
+        status: 'paid',
+        payment_method: method 
+      })
+      .eq('id', orderId);
+
+    if (error) throw error;
+
+    // Cập nhật báo cáo
+    dailyReport.revenue.total += order.total;
+    dailyReport.revenue[method] = (dailyReport.revenue[method] || 0) + order.total;
+    
+    // CHỈ CẬP NHẬT KÉT TIỀN KHI THANH TOÁN BẰNG TIỀN MẶT
+    if (method === 'cash') {
+      dailyReport.cash.collected += order.total;
+
     }
+
+    Object.keys(order.items).forEach(itemId => {
+      const item = findItemById(itemId);
+      if (!item) return;
+      
+      if (!dailyReport.items[item.name]) {
+        dailyReport.items[item.name] = 0;
+      }
+      dailyReport.items[item.name] += order.items[itemId];
+    });
+
+    orders = orders.filter(o => o.id !== orderId);
+    await saveData();
+    renderOrders();
+    updateReports();
+    alert('Đã thanh toán thành công!');
+
+  } catch (error) {
+    console.error('Lỗi thanh toán:', error);
+    alert('Có lỗi khi thanh toán. Vui lòng thử lại!');
+  }
+}
+
+function toggleReportSection(section) {
+  const items = document.getElementById(`items-${section}`);
+  const icon = document.getElementById(`icon-${section}`);
+  
+  items.classList.toggle('show');
+  icon.classList.toggle('rotate');
+}
+
+    function updateReports() {
+  document.getElementById('totalRevenue').textContent = formatMoney(dailyReport.revenue.total);
+  document.getElementById('cashRevenue').textContent = formatMoney(dailyReport.revenue.cash || 0);
+  document.getElementById('transferRevenue').textContent = formatMoney(dailyReport.revenue.transfer || 0);
+  document.getElementById('grabRevenue').textContent = formatMoney(dailyReport.revenue.grab || 0);
+  document.getElementById('shopeeRevenue').textContent = formatMoney(dailyReport.revenue.shopee || 0);
+
+  const soldItems = document.getElementById('soldItems');
+  const itemsHtml = Object.keys(dailyReport.items).map(name => `
+    <div class="order-item">
+      <span>${name}</span>
+      <strong>${dailyReport.items[name]} món</strong>
+    </div>
+  `).join('');
+  soldItems.innerHTML = itemsHtml || '<p style="color: #999;">Chưa có món nào được bán</p>';
+
+  document.getElementById('displayStartCash').textContent = formatMoney(dailyReport.cash.start);
+  document.getElementById('displayCashRevenue').textContent = formatMoney(dailyReport.revenue.cash || 0);
+  document.getElementById('displayTotalCash').textContent = formatMoney((dailyReport.cash.start || 0) + (dailyReport.cash.collected || 0));
+
+}
 
     function setStartCash() {
       const amount = parseInt(document.getElementById('startCash').value);
@@ -1161,123 +1178,180 @@ function updateQuantityDisplay(itemId) {
       alert('Đã cập nhật tiền đầu ngày!');
     }
 
-    function resetCashRegister() {
-        if (!confirm('Xác nhận chốt két và reset dữ liệu ngày mới?')) return;
+   function resetCashRegister() {
+  if (!confirm('Xác nhận chốt két và reset dữ liệu ngày mới?')) return;
 
-        const totalCash = dailyReport.cash.start + dailyReport.cash.current;
-        alert(`Tổng két tiền: ${formatMoney(totalCash)}\n\nĐã reset dữ liệu ngày mới!`);
+  const totalCash = dailyReport.cash.start + dailyReport.cash.current;
+  alert(`Tổng két tiền: ${formatMoney(totalCash)}\n\nĐã reset dữ liệu ngày mới!`);
 
-        dailyReport = {
-            revenue: { total: 0, cash: 0, transfer: 0, grab: 0, shopee: 0 },
-            items: {},
-            cash: { start: 0, current: 0 }
-        };
+  dailyReport = {
+    revenue: { total: 0, cash: 0, transfer: 0, grab: 0, shopee: 0 },
+    items: {},
+    cash: { start: 0, current: 0 }
+  };
 
-        saveData();
-        updateReports();
-        }
-
+  saveData();
+  updateReports();
+}
 
     function formatMoney(amount) {
       return amount.toLocaleString('vi-VN') + 'đ';
     }
 
-    function toggleReport(reportId) {
-      const content = document.getElementById(`content-${reportId}`);
-      const icon = document.getElementById(`icon-${reportId}`);
-      
-      content.classList.toggle('show');
-      icon.classList.toggle('rotate');
+    async function saveData() {
+      try {
+        // Lưu daily report
+        const { error: reportError } = await supabase
+          .from('daily_reports')
+          .upsert({
+            store_code: currentStore,
+            user_id: currentUser,
+            report_date: new Date().toISOString().split('T')[0],
+            revenue: dailyReport.revenue,
+            items_sold: dailyReport.items,
+            cash_register: dailyReport.cash,
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'store_code,user_id,report_date'
+          });
+
+        if (reportError) throw reportError;
+
+        // Vẫn giữ localStorage để backup
+        const data = { orders, dailyReport, timestamp: Date.now() };
+        const key = `pizza_${currentStore}_${currentUser}`;
+        localStorage.setItem(key, JSON.stringify(data));
+
+      } catch (error) {
+        console.error('Lỗi lưu dữ liệu:', error);
+        alert('Có lỗi khi lưu dữ liệu. Vui lòng thử lại!');
+      }
     }
 
-    async function saveData() {
-        try {
-            // Lưu daily report
-            const { error: reportError } = await supabase
-            .from('daily_reports')
-            .upsert({
-                store_code: currentStore,
-                user_id: currentUser,
-                report_date: new Date().toISOString().split('T')[0],
-                revenue: dailyReport.revenue,
-                items_sold: dailyReport.items,
-                cash_register: dailyReport.cash,
-                updated_at: new Date().toISOString()
-            }, {
-                onConflict: 'store_code,user_id,report_date'
-            });
-
-            if (reportError) throw reportError;
-
-            // Vẫn giữ localStorage để backup
-            const data = { orders, dailyReport, timestamp: Date.now() };
-            const key = `pizza_${currentStore}_${currentUser}`;
-            localStorage.setItem(key, JSON.stringify(data));
-
-        } catch (error) {
-            console.error('Lỗi lưu dữ liệu:', error);
-            alert('Có lỗi khi lưu dữ liệu. Vui lòng thử lại!');
-        }
-        }
-
-
     async function loadData() {
-        try {
-            const today = new Date().toISOString().split('T')[0];
-            
-            // Load daily report từ Supabase
-            const { data: reportData, error } = await supabase
-            .from('daily_reports')
-            .select('*')
-            .eq('store_code', currentStore)
-            .eq('user_id', currentUser)
-            .eq('report_date', today)
-            .single();
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    const { data: reportData, error } = await supabase
+      .from('daily_reports')
+      .select('*')
+      .eq('store_code', currentStore)
+      .eq('user_id', currentUser)
+      .eq('report_date', today)
+      .single();
 
-            if (reportData && !error) {
-            dailyReport = {
-                revenue: reportData.revenue,
-                items: reportData.items_sold,
-                cash: reportData.cash_register
-            };
-            } else {
-            // Khởi tạo mới nếu chưa có
-            dailyReport = {
-                revenue: { total: 0, cash: 0, transfer: 0, grab: 0, shopee: 0 },
-                items: {},
-                cash: { start: 0, current: 0 }
-                };
-            }
+    if (reportData && !error) {
+      dailyReport = {
+        revenue: reportData.revenue,
+        items: reportData.items_sold,
+        cash: reportData.cash_register
+      };
+    } else {
+      dailyReport = {
+        revenue: { total: 0, cash: 0, transfer: 0, grab: 0, shopee: 0 },
+        items: {},
+        cash: { start: 0, current: 0 }
+      };
+    }
 
-            // Load orders từ Supabase (orders chưa thanh toán)
-            const { data: ordersData, error: ordersError } = await supabase
-            .from('orders')
-            .select('*')
-            .eq('store_code', currentStore)
-            .eq('user_id', currentUser)
-            .eq('status', 'pending')
-            .order('created_at', { ascending: false });
+    const { data: ordersData, error: ordersError } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('store_code', currentStore)
+      .eq('user_id', currentUser)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
 
-            if (ordersData && !ordersError) {
-            orders = ordersData;
-            }
+    if (ordersData && !ordersError) {
+      orders = ordersData;
+    }
 
-        } catch (error) {
-            console.error('Lỗi load dữ liệu:', error);
-            // Fallback về localStorage nếu có lỗi
-            const key = `pizza_${currentStore}_${currentUser}`;
-            const saved = localStorage.getItem(key);
-            if (saved) {
-            const data = JSON.parse(saved);
-            orders = data.orders || [];
-            dailyReport = data.dailyReport || {
-                revenue: { total: 0, cash: 0, transfer: 0, grab: 0, shopee: 0 },
-                items: {},
-                cash: { start: 0, current: 0 }
-                };
-            }
-        }
-        }
+  } catch (error) {
+    console.error('Lỗi load dữ liệu:', error);
+  }
+}
+
+function showBillPreview(orderId) {
+  const order = orders.find(o => o.id === orderId);
+  if (!order) return;
+
+  const typeLabels = {
+    'dine': '🍽️ Ăn tại quán',
+    'takeout': '📦 Mang về',
+    'grab': '🛵 Grab',
+    'shopee': '🛒 Shopee'
+  };
+
+  let itemsHtml = Object.keys(order.items).map(itemId => {
+    const item = findItemById(itemId);
+    if (!item) return '';
+    const qty = order.items[itemId];
+    const subtotal = item.price * qty;
+    return `
+      <div class="bill-item">
+        <div>
+          <div style="font-weight: 600;">${item.name}</div>
+          <div style="font-size: 13px; color: #777;">${formatMoney(item.price)} x ${qty}</div>
+        </div>
+        <div style="font-weight: 600;">${formatMoney(subtotal)}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Ẩn main app
+  document.getElementById('mainApp').style.display = 'none';
+
+  // Tạo trang hóa đơn mới
+  const billPage = document.createElement('div');
+  billPage.id = 'billPage';
+  billPage.style.cssText = 'min-height: 100vh; background: white; padding: 20px;';
+  billPage.innerHTML = `
+    <div style="max-width: 600px; margin: 0 auto;">
+      <div style="background: #e74c3c; color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0;">🧾 Hóa Đơn Chi Tiết</h2>
+        <button onclick="closeBillPage()" style="background: white; color: #e74c3c; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">← Quay lại</button>
+      </div>
+      <div style="background: white; padding: 30px; border: 2px solid #e74c3c; border-top: none; border-radius: 0 0 12px 12px;">
+        <div style="margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+          <div style="margin-bottom: 8px;"><strong>Loại đơn:</strong> ${typeLabels[order.order_type] || order.order_type}</div>
+          ${order.table_number ? `<div style="margin-bottom: 8px;"><strong>Bàn số:</strong> ${order.table_number}</div>` : ''}
+          ${order.note ? `<div><strong>Ghi chú:</strong> ${order.note}</div>` : ''}
+        </div>
+        <h3 style="margin-bottom: 15px; color: #e74c3c;">Chi tiết món:</h3>
+        ${itemsHtml}
+        <div style="display: flex; justify-content: space-between; padding: 20px 0 10px 0; border-top: 2px solid #e74c3c; font-size: 20px; font-weight: 700; color: #e74c3c; margin-top: 15px;">
+          <span>TỔNG CỘNG:</span>
+          <span>${formatMoney(order.total)}</span>
+        </div>
+        <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <button onclick="payOrder(${order.id}, 'cash'); closeBillPage();" style="background: #27ae60; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">💵 Tiền mặt</button>
+          <button onclick="payOrder(${order.id}, 'transfer'); closeBillPage();" style="background: #3498db; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">🏦 Chuyển khoản</button>
+          <button onclick="payOrder(${order.id}, 'grab'); closeBillPage();" style="background: #00b14f; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">🛵 Grab</button>
+          <button onclick="payOrder(${order.id}, 'shopee'); closeBillPage();" style="background: #ee4d2d; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">🛒 Shopee</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(billPage);
+}
+
+function closeBillPage() {
+  const billPage = document.getElementById('billPage');
+  if (billPage) {
+    billPage.remove();
+  }
+  document.getElementById('mainApp').style.display = 'block';
+}
+
+
+// Đóng modal khi click bên ngoài
+window.onclick = function(event) {
+  const modal = document.getElementById('billModal');
+  if (event.target == modal) {
+    modal.style.display = 'none';
+  }
+}
   </script>
 </body>
 </html>
