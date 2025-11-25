@@ -512,6 +512,95 @@
   color: #e74c3c;
   margin-top: 15px;
 }
+/* Thêm vào cuối phần CSS hiện tại */
+
+.edit-order-btn {
+  background: #f39c12;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  margin-right: 8px;
+}
+
+.edit-order-btn:hover {
+  background: #e67e22;
+}
+
+.delete-item-btn {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.delete-item-btn:hover {
+  background: #c0392b;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.order-item-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.edit-mode .order-item {
+  background: #fff3cd;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.item-qty-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 10px;
+}
+
+.item-qty-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-qty-btn:hover {
+  background: #c0392b;
+}
+
+.qr-badge {
+  background: #27ae60;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 8px;
+}
     }
   </style>
 </head>
@@ -784,7 +873,6 @@
   cash: { start: 0, current: 0 }
 };
 
-
     async function login() {
   const userId = document.getElementById('userId').value.trim();
   const store = document.getElementById('storeSelect').value;
@@ -1033,24 +1121,53 @@
       typeLabel = '🛒 Shopee';
     }
 
+    // Badge QR nếu đơn từ khách
+    const qrBadge = order.order_source === 'qr' ? '<span class="qr-badge">📱 QR Order</span>' : '';
+
+    const isEditMode = order.editMode || false;
+
     const itemsHtml = Object.keys(order.items).map(itemId => {
       const item = findItemById(itemId);
       if (!item) return '';
-      return `
-        <div class="order-item">
-          <span>${item.name} x ${order.items[itemId]}</span>
-          <span>${formatMoney(item.price * order.items[itemId])}</span>
-        </div>
-      `;
+      
+      const qty = order.items[itemId];
+      const subtotal = item.price * qty;
+
+      if (isEditMode) {
+        return `
+          <div class="order-item">
+            <div class="order-item-left">
+              <span>${item.name}</span>
+              <div class="item-qty-control">
+                <button class="item-qty-btn" onclick="updateOrderItem('${order.id}', '${itemId}', -1)">-</button>
+                <span style="font-weight: 600; min-width: 25px; text-align: center;">${qty}</span>
+                <button class="item-qty-btn" onclick="updateOrderItem('${order.id}', '${itemId}', 1)">+</button>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center;">
+              <span style="font-weight: 600;">${formatMoney(subtotal)}</span>
+              <button class="delete-item-btn" onclick="deleteOrderItem('${order.id}', '${itemId}')">×</button>
+            </div>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="order-item">
+            <span>${item.name} x ${qty}</span>
+            <span>${formatMoney(subtotal)}</span>
+          </div>
+        `;
+      }
     }).join('');
 
     const timestamp = order.created_at ? new Date(order.created_at).toLocaleString('vi-VN') : order.timestamp;
 
     return `
-      <div class="order-card">
+      <div class="order-card ${isEditMode ? 'edit-mode' : ''}">
         <div class="order-header">
           <div>
             <span class="order-type ${typeClass}">${typeLabel}</span>
+            ${qrBadge}
             ${orderInfo}
             <div style="margin-top: 8px; font-size: 12px; color: #999;">${timestamp}</div>
           </div>
@@ -1062,15 +1179,22 @@
         <div class="order-items">
           ${itemsHtml}
         </div>
-        <div class="payment-buttons">
-          <button class="payment-btn" style="background: #9b59b6; color: white; margin-bottom: 10px;" onclick="showBillPreview(${order.id})">👁️ Xem hóa đơn</button>
-        </div>
-        <div class="payment-buttons">
-          <button class="payment-btn pay-cash" onclick="payOrder(${order.id}, 'cash')">💵 Tiền mặt</button>
-          <button class="payment-btn pay-transfer" onclick="payOrder(${order.id}, 'transfer')">🏦 Chuyển khoản</button>
-          <button class="payment-btn" style="background: #00b14f; color: white;" onclick="payOrder(${order.id}, 'grab')">🛵 Grab</button>
-          <button class="payment-btn" style="background: #ee4d2d; color: white;" onclick="payOrder(${order.id}, 'shopee')">🛒 Shopee</button>
-        </div>
+        
+        ${isEditMode ? `
+          <button class="payment-btn" style="background: #27ae60; color: white; margin-top: 15px;" onclick="saveOrderEdit('${order.id}')">✅ Lưu thay đổi</button>
+          <button class="payment-btn" style="background: #95a5a6; color: white; margin-top: 10px;" onclick="cancelOrderEdit('${order.id}')">❌ Hủy</button>
+        ` : `
+          <div class="payment-buttons" style="margin-top: 15px;">
+            <button class="edit-order-btn" onclick="enableEditMode('${order.id}')">✏️ Sửa đơn</button>
+            <button class="payment-btn" style="background: #9b59b6; color: white; flex: 1;" onclick="showBillPreview(${order.id})">👁️ Xem hóa đơn</button>
+          </div>
+          <div class="payment-buttons">
+            <button class="payment-btn pay-cash" onclick="payOrder(${order.id}, 'cash')">💵 Tiền mặt</button>
+            <button class="payment-btn pay-transfer" onclick="payOrder(${order.id}, 'transfer')">🏦 Chuyển khoản</button>
+            <button class="payment-btn" style="background: #00b14f; color: white;" onclick="payOrder(${order.id}, 'grab')">🛵 Grab</button>
+            <button class="payment-btn" style="background: #ee4d2d; color: white;" onclick="payOrder(${order.id}, 'shopee')">🛒 Shopee</button>
+          </div>
+        `}
       </div>
     `;
   }).join('');
@@ -1350,6 +1474,139 @@ window.onclick = function(event) {
   const modal = document.getElementById('billModal');
   if (event.target == modal) {
     modal.style.display = 'none';
+  }
+}
+
+// Các hàm xử lý sửa/xóa món
+let orderBackup = null;
+
+function enableEditMode(orderId) {
+  const order = orders.find(o => o.id == orderId);
+  if (!order) return;
+  
+  // Backup đơn hàng để có thể hủy
+  orderBackup = JSON.parse(JSON.stringify(order));
+  
+  order.editMode = true;
+  renderOrders();
+}
+
+function cancelOrderEdit(orderId) {
+  const orderIndex = orders.findIndex(o => o.id == orderId);
+  if (orderIndex === -1 || !orderBackup) return;
+  
+  // Khôi phục đơn hàng từ backup
+  orders[orderIndex] = orderBackup;
+  orderBackup = null;
+  
+  renderOrders();
+}
+
+async function saveOrderEdit(orderId) {
+  const order = orders.find(o => o.id == orderId);
+  if (!order) return;
+  
+  // Tính lại tổng tiền
+  order.total = Object.keys(order.items).reduce((sum, itemId) => {
+    const item = findItemById(itemId);
+    if (!item) return sum;
+    return sum + (item.price * order.items[itemId]);
+  }, 0);
+  
+  order.editMode = false;
+  orderBackup = null;
+  
+  try {
+    // Cập nhật vào Supabase
+    const { error } = await supabase
+      .from('orders')
+      .update({ 
+        items: order.items,
+        total: order.total,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', orderId);
+
+    if (error) throw error;
+    
+    await saveData();
+    renderOrders();
+    alert('Đã lưu thay đổi!');
+    
+  } catch (error) {
+    console.error('Lỗi lưu thay đổi:', error);
+    alert('Có lỗi khi lưu. Vui lòng thử lại!');
+  }
+}
+
+function updateOrderItem(orderId, itemId, change) {
+  const order = orders.find(o => o.id == orderId);
+  if (!order) return;
+  
+  if (!order.items[itemId]) order.items[itemId] = 0;
+  order.items[itemId] += change;
+  
+  // Xóa món nếu số lượng <= 0
+  if (order.items[itemId] <= 0) {
+    delete order.items[itemId];
+  }
+  
+  // Tính lại tổng
+  order.total = Object.keys(order.items).reduce((sum, id) => {
+    const item = findItemById(id);
+    if (!item) return sum;
+    return sum + (item.price * order.items[id]);
+  }, 0);
+  
+  renderOrders();
+}
+
+function deleteOrderItem(orderId, itemId) {
+  const order = orders.find(o => o.id == orderId);
+  if (!order) return;
+  
+  const item = findItemById(itemId);
+  if (!item) return;
+  
+  if (!confirm(`Xóa món "${item.name}" khỏi đơn hàng?`)) return;
+  
+  delete order.items[itemId];
+  
+  // Nếu không còn món nào, xóa luôn đơn hàng
+  if (Object.keys(order.items).length === 0) {
+    if (confirm('Đơn hàng không còn món nào. Xóa luôn đơn hàng?')) {
+      deleteOrder(orderId);
+      return;
+    }
+  }
+  
+  // Tính lại tổng
+  order.total = Object.keys(order.items).reduce((sum, id) => {
+    const item = findItemById(id);
+    if (!item) return sum;
+    return sum + (item.price * order.items[id]);
+  }, 0);
+  
+  renderOrders();
+}
+
+async function deleteOrder(orderId) {
+  try {
+    const { error } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', orderId);
+
+    if (error) throw error;
+    
+    orders = orders.filter(o => o.id != orderId);
+    await saveData();
+    renderOrders();
+    alert('Đã xóa đơn hàng!');
+    
+  } catch (error) {
+    console.error('Lỗi xóa đơn:', error);
+    alert('Có lỗi khi xóa. Vui lòng thử lại!');
   }
 }
   </script>
