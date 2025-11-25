@@ -890,6 +890,9 @@
   document.getElementById('storeBadge').textContent = store;
   document.getElementById('userDisplay').textContent = `User: ${userId}`;
 
+  // Yêu cầu quyền thông báo
+  requestNotificationPermission();  // ← THÊM DÒNG NÀY
+
   await loadData(); // Đợi load data xong
   renderMenu();
   toggleTableSelect();
@@ -903,14 +906,21 @@
     }
 
     function logout() {
-      saveData();
-      currentUser = '';
-      currentStore = '';
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('mainApp').style.display = 'none';
-      document.getElementById('userId').value = '';
-      document.getElementById('storeSelect').value = '';
-    }
+  saveData();
+  
+  // Hủy real-time subscription
+  if (ordersSubscription) {
+    supabase.removeChannel(ordersSubscription);
+    ordersSubscription = null;
+  }
+  
+  currentUser = '';
+  currentStore = '';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('userId').value = '';
+  document.getElementById('storeSelect').value = '';
+}
 
     function switchTab(index) {
       document.querySelectorAll('.tab').forEach((tab, i) => {
@@ -1352,7 +1362,7 @@ function toggleReportSection(section) {
       }
     }
 
-    async function loadData() {
+   async function loadData() {
   try {
     const today = new Date().toISOString().split('T')[0];
     
@@ -1378,17 +1388,20 @@ function toggleReportSection(section) {
       };
     }
 
+    // Load tất cả đơn pending của quán này (bao gồm cả QR orders)
     const { data: ordersData, error: ordersError } = await supabase
       .from('orders')
       .select('*')
       .eq('store_code', currentStore)
-      .eq('user_id', currentUser)
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
 
     if (ordersData && !ordersError) {
       orders = ordersData;
     }
+
+    // Kích hoạt real-time subscription
+    subscribeToOrders();
 
   } catch (error) {
     console.error('Lỗi load dữ liệu:', error);
@@ -1607,6 +1620,84 @@ async function deleteOrder(orderId) {
   } catch (error) {
     console.error('Lỗi xóa đơn:', error);
     alert('Có lỗi khi xóa. Vui lòng thử lại!');
+  }
+}
+
+// Real-time subscription cho đơn hàng mới
+let ordersSubscription = null;
+
+function subscribeToOrders() {
+  // Hủy subscription cũ nếu có
+  if (ordersSubscription) {
+    supabase.removeChannel(ordersSubscription);
+  }
+
+  // Tạo subscription mới
+  ordersSubscription = supabase
+    .channel('staff-orders')
+    .on('postgres_changes', 
+      { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'orders',
+        filter: `store_code=eq.${currentStore}`
+      }, 
+      (payload) => {
+        console.log('📱 Đơn hàng mới:', payload.new);
+        
+        // Thêm đơn mới vào danh sách
+        orders.unshift(payload.new);
+        
+        // Hiện thông báo nếu là đơn QR
+        if (payload.new.order_source === 'qr') {
+          showNotification(`🔔 Đơn QR mới - Bàn ${payload.new.table_number}`, payload.new);
+        }
+        
+        // Tự động render lại nếu đang ở tab Đơn Hiện Tại
+        const currentTab = document.querySelector('.tab.active');
+        const tabIndex = Array.from(document.querySelectorAll('.tab')).indexOf(currentTab);
+        if (tabIndex === 1) {
+          renderOrders();
+        }
+        
+        // Cập nhật badge số đơn chưa xử lý (optional)
+        updateOrderBadge();
+      }
+    )
+    .subscribe();
+}
+
+// Hiện thông báo đơn mới
+function showNotification(message, order) {
+  // Kiểm tra quyền thông báo trình duyệt
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(message, {
+      body: `Tổng: ${formatMoney(order.total)}\n${Object.keys(order.items).length} món`,
+      icon: '🍕',
+      tag: 'pizza-order'
+    });
+  }
+  
+  // Alert đơn giản (luôn hiện)
+  if (confirm(`${message}\n\nTổng: ${formatMoney(order.total)}\n\nXem đơn hàng ngay?`)) {
+    switchTab(1); // Chuyển sang tab Đơn Hiện Tại
+  }
+}
+
+// Cập nhật badge số đơn (optional - thêm sau nếu muốn)
+function updateOrderBadge() {
+  const pendingCount = orders.filter(o => o.status === 'pending').length;
+  const qrCount = orders.filter(o => o.order_source === 'qr' && o.status === 'pending').length;
+  
+  console.log(`📊 Tổng ${pendingCount} đơn chờ (${qrCount} đơn QR)`);
+  
+  // Có thể thêm badge vào tab "Đơn Hiện Tại" ở đây
+}
+
+// Yêu cầu quyền thông báo khi đăng nhập
+function requestNotificationPermission() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
   }
 }
   </script>
